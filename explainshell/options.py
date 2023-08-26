@@ -58,8 +58,7 @@ def _flag(s, pos=0):
     >>> bool(_flag('foobar'))
     False
     '''
-    m = opt2_regex.match(s, pos)
-    return m
+    return opt2_regex.match(s, pos)
 
 def _option(s, pos=0):
     '''
@@ -120,10 +119,7 @@ def _eatbetween(s, pos):
     >>> _eatbetween('a or b', 1)
     5
     '''
-    m = _eatbetweenregex.match(s, pos)
-    if m:
-        return m.end(0)
-    return pos
+    return m.end(0) if (m := _eatbetweenregex.match(s, pos)) else pos
 
 class extractedoption(collections.namedtuple('extractedoption', 'flag expectsarg')):
     def __eq__(self, other):
@@ -162,20 +158,16 @@ def extract_option(txt):
                         short.append(extractedoption(txt[startpos:currpos], None))
                         startpos = currpos
                     currpos += 1
-                leftover = txt[startpos:currpos]
-                if leftover:
+                if leftover := txt[startpos:currpos]:
                     short.append(extractedoption(leftover, None))
         else:
             m = _option(txt, currpos)
 
     if currpos == startpos:
-        m = _flag(txt, currpos)
-        while m:
+        while m := _flag(txt, currpos):
             s = m.group('opt')
             po = extractedoption(s, m.group('arg'))
             long.append(po)
             currpos = m.end(0)
             currpos = _eatbetween(txt, currpos)
-            m = _flag(txt, currpos)
-
     return short, long
